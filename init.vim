@@ -12,6 +12,7 @@ set encoding=utf-8  "setting for YCM
 set foldmethod=syntax	"set the fold function method to fold by syntax of
 " Always draw the signcolumn.
 set signcolumn=yes
+set pastetoggle=
 
 "keymap settings
 "differences between map,nnoremap,inoremap,vnoremap
@@ -51,6 +52,8 @@ let g:LanguageClient_serverCommands = {
     \ 'c': ['cquery', '--log-file=/tmp/cq.log'],
     \ }
 
+let g:rustfmt_autosave = 1
+
 let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
 let g:LanguageClient_settingsPath = '~/.config/nvim/settings.json'
 set completefunc=LanguageClient#complete
@@ -60,6 +63,14 @@ nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
 nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
 nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
 nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+
+" map to <Leader>k in C++ code
+autocmd FileType c,cpp,objc nnoremap <buffer><Leader>k :<C-u>ClangFormat<CR>
+autocmd FileType c,cpp,objc vnoremap <buffer><Leader>k :ClangFormat<CR>
+" if you install vim-operator-user
+autocmd FileType c,cpp,objc map <buffer><Leader>x <Plug>(operator-clang-format)
+" Toggle auto formatting:
+nmap <Leader>C :ClangFormatAutoToggle<CR>
 
 "some basic configure
 set nocompatible        " close compatible mode
@@ -141,6 +152,7 @@ Plug 'rstacruz/sparkup', {'rtp': 'vim/'}
 " Plug 'ascenator/L9', {'name': 'newL9'}
 "
 "Plug added by Karl-Han
+Plug 'rust-lang/rust.vim'
 "Plug ctrlp
 Plug 'ctrlpvim/ctrlp.vim'
 "Plug lightline
@@ -178,7 +190,7 @@ Plug 'Yggdroot/indentLine'
 "Dash for vim
 Plug 'rizzatti/dash.vim'
 " coc.vim
-Plug 'neoclide/coc.nvim', {'do': 'yarn install'}
+Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
 " Assembly indent
 Plug 'philj56/vim-asm-indent'
 Plug 'racer-rust/vim-racer'
@@ -193,6 +205,15 @@ Plug 'autozimu/LanguageClient-neovim', {
 " (Optional) Multi-entry selection UI.
 "Plug 'junegunn/fzf'
 "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+
+" Add maktaba and bazel to the runtimepath.
+" (The latter must be installed before it can be used.)
+Plug 'google/vim-maktaba'
+Plug 'bazelbuild/vim-bazel'
+
+" Integrate clang-format
+Plug 'kana/vim-operator-user'
+Plug 'rhysd/vim-clang-format'
 
 " All of your Plugs must be added before the following line
 call plug#end()            " required
@@ -242,6 +263,23 @@ function! s:check_back_space() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~ '\s'
 endfunction
+
+"let g:coc_snippet_next = "<tab>"
+"let g:coc_snippet_prev = "<C-j>"
+" Use <C-l> for trigger snippet expand.
+imap <C-l> <Plug>(coc-snippets-expand)
+"
+" " Use <C-j> for select text for visual placeholder of snippet.
+vmap <C-j> <Plug>(coc-snippets-select)
+"
+" " Use <C-j> for jump to next placeholder, it's default of coc.nvim
+let g:coc_snippet_next = '<c-j>'
+"
+" " Use <C-k> for jump to previous placeholder, it's default of coc.nvim
+let g:coc_snippet_prev = '<c-k>'
+"
+" " Use <C-j> for both expand and jump (make expand higher priority.)
+imap <C-j> <Plug>(coc-snippets-expand-jump)
 
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
